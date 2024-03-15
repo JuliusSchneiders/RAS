@@ -12,19 +12,19 @@ class accel():
         self.iic.writeto(self.addr, bytearray([107, 0]))
         self.iic.stop()
 
-    def get_raw_values(self):
+    def valores_brutos(self):
         self.iic.start()
         a = self.iic.readfrom_mem(self.addr, 0x3B, 14)
         self.iic.stop()
         return a
 
-    def bytes_toint(self, firstbyte, secondbyte):
-        if not firstbyte & 0x80:
-            return firstbyte << 8 | secondbyte
-        return - (((firstbyte ^ 255) << 8) | (secondbyte ^ 255) + 1)
+    def bytes_toint(self, primeirobyte, segundobyte):
+        if not primeirobyte & 0x80:
+            return primeirobyte << 8 | segundobyte
+        return - (((primeirobyte ^ 255) << 8) | (segundobyte ^ 255) + 1)
 
-    def get_values(self):
-        raw_ints = self.get_raw_values()
+    def valores(self):
+        raw_ints = self.valores_brutos()
         vals = {}
         vals["AcX"] = self.bytes_toint(raw_ints[0], raw_ints[1])
         vals["AcY"] = self.bytes_toint(raw_ints[2], raw_ints[3])
@@ -36,23 +36,23 @@ class accel():
         return vals  # returned in range of Int16
         # -32768 to 32767
 
-    def calculate_angle_x(self):
-        vals = self.get_values()
+    def ang_x(self):
+        vals = self.valores()
         angle_x = math.atan(vals["AcX"] / math.sqrt(vals["AcY"]**2 + vals["AcZ"]**2)) * 180 / math.pi
-        return angle_x
-    def calculate_angle_y(self):
-        vals = self.get_values()
+        return ang_x
+    def ang_y(self):
+        vals = self.valores()
         angle_y = math.atan(vals["AcY"] / math.sqrt(vals['AcX']**2 + vals['AcZ']**2)) * 180 / math.pi
-        return angle_y
+        return ang_y
 
-    def get_valuesTmp(self):
-        raw_ints = self.get_raw_values()
+    def valores_temp(self):
+        raw_ints = self.valores_brutos()
         vals = {}
         vals["Tmp"] = self.bytes_toint(raw_ints[6], raw_ints[7]) / 340.00 + 36.53
         return vals
 
     def calculate_temp(self):
-        vals = self.get_valuesTmp()
+        vals = self.valores_temp()
         temp = vals['Tmp']
         return temp
 
@@ -66,13 +66,13 @@ led = Pin(2, Pin.OUT)
 
 # Calcula e imprime o ângulo do eixo X e a temperatura
 while True:
-    angle_x = sensor.calculate_angle_x()
-    angle_y = sensor.calculate_angle_y()
+    angulo_x = sensor.ang_x()
+    angulo_y = sensor.ang_y()
     temp = sensor.calculate_temp()
-    print(f'\nângulo x: {angle_x}  \nângulo y: {angle_y}  \ntemperatura: {temp}\n =-=-=-=-=-=-=-=-=-=-=-=-=-=-=)')
+    print(f'\nângulo x: {angulo_x}  \nângulo y: {angulo_y}  \ntemperatura: {temp}\n =-=-=-=-=-=-=-=-=-=-=-=-=-=-=)')
     sleep(0.1)
     
-    if angle_y > 30 or angle_y < -30:
+    if angulo_y > 30 or angulo_y < -30:
         led.value(1)
         sleep(0.2)
         led.value(0)
