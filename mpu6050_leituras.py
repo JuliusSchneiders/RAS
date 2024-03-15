@@ -39,11 +39,11 @@ class accel():
     def ang_x(self):
         vals = self.valores()
         angle_x = math.atan(vals["AcX"] / math.sqrt(vals["AcY"]**2 + vals["AcZ"]**2)) * 180 / math.pi
-        return ang_x
+        return angle_x
     def ang_y(self):
         vals = self.valores()
         angle_y = math.atan(vals["AcY"] / math.sqrt(vals['AcX']**2 + vals['AcZ']**2)) * 180 / math.pi
-        return ang_y
+        return angle_y
 
     def valores_temp(self):
         raw_ints = self.valores_brutos()
